@@ -1,10 +1,9 @@
-import logging
 from os import getenv
 
 from dotenv import load_dotenv
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
-from pymongo.errors import ConnectionFailure
+from pymongo.errors import ServerSelectionTimeoutError
 
 from app.loggers import db_logger
 
@@ -17,22 +16,23 @@ class DatabaseService:
     _reports_collection: AsyncIOMotorCollection
 
     def __init__(self):
-        try:
-            client = AsyncIOMotorClient(
-                getenv('MONGO_DB_HOST'),
-                username=getenv('MONGO_DB_USERNAME'),
-                password=getenv('MONGO_DB_PASSWORD'),
-                authMechanism='SCRAM-SHA-1'
-            )
-            db = client['daily-report-bot']
+        client = AsyncIOMotorClient(
+            getenv('MONGO_DB_HOST'),
+            username=getenv('MONGO_DB_USERNAME'),
+            password=getenv('MONGO_DB_PASSWORD'),
+            authMechanism='SCRAM-SHA-1'
+        )
 
-            # defining main fields: collections and client
-            self._client = client
-            self._users_collection = db.users_collection
-            self._reports_collection = db.reports_collection
-            db_logger.info('Database successfully connected')
-        except ConnectionFailure:
-            db_logger.info('Connection failed')
+        try:
+            if client.is_primary:
+                db = client['daily-report-bot']
+                # defining main fields: collections and client
+                self._client = client
+                self._users_collection = db.users_collection
+                self._reports_collection = db.reports_collection
+                db_logger.info('Database successfully connected')
+        except ServerSelectionTimeoutError:
+            db_logger.error('Connection failed')
 
     async def create_user(self, username: str, full_name: str, tg_id: int):
         user = {

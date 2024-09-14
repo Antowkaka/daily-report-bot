@@ -1,4 +1,5 @@
 from os import getenv
+from typing import Coroutine
 
 from dotenv import load_dotenv
 
@@ -6,7 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 from pymongo.errors import ServerSelectionTimeoutError
 
 from app.loggers import db_logger
-from app.entities.user import DbUser, GoalsType
+from app.entities.user import UserEntity, GoalsType
 
 load_dotenv()
 
@@ -35,7 +36,7 @@ class DatabaseService:
         except ServerSelectionTimeoutError:
             db_logger.error('Connection failed')
 
-    async def create_user(self, user: DbUser.model):
+    async def create_user(self, user: UserEntity.model):
         await self._users_collection.insert_one(user)
 
     async def update_user_goals(self, tg_id: int, goals: GoalsType):
@@ -43,3 +44,8 @@ class DatabaseService:
 
     async def delete_user(self, tg_id: int):
         await self._users_collection.delete_one({'telegramID': tg_id})
+
+    async def get_user(self, tg_id: int):
+        user = await self._users_collection.find_one({'telegramID': tg_id})
+
+        return user

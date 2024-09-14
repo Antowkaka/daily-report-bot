@@ -2,7 +2,6 @@ from typing import Dict, Any
 import re
 
 from aiogram import Router, F
-from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
@@ -17,11 +16,6 @@ from app.types import TrainingGoalType, SkipStepType, CompleteStepType
 import app.keyboards as k_boards
 
 goals_setting_router = Router()
-
-
-@goals_setting_router.message(CommandStart())
-async def start_handler(message: Message) -> None:
-    await message.answer(get_text('message-greeting'), reply_markup=k_boards.first_step_keyboard)
 
 
 # set diet goal flow
@@ -124,11 +118,11 @@ async def skip_custom_goal_settinge_handler(
     # 3. handle previous message and answer
     await callback.message.delete()
     await callback.answer()
-    await callback.message.answer('Skipped custom goal setting')
+    await callback.message.answer(get_text('message-setting-goals-completed'))
 
 
 def create_text_for_custom_goal(data: Dict[str, Any], iterator: int) -> str:
-    return f'{get_text("message-set-custom-goal")} {data[f"custom_goal_{iterator}"]['name']:}'
+    return f'{get_text("template-set-custom-goal")} {data[f"custom_goal_{iterator}"]['name']:}'
 
 
 # handle complete custom goal setting
@@ -176,7 +170,7 @@ async def set_custom_goal_handler(message: Message, state: FSMContext, database:
         await state.clear()
 
         # 3. answer
-        await message.answer('All goals settled')
+        await message.answer(get_text('message-setting-goals-completed'))
     else:
         # 3b. create next iterator
         next_goal_index = temp_iterator + 1

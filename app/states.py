@@ -12,8 +12,6 @@ class SetGoalsState(StatesGroup):
 
 class TrackDayState(StatesGroup):
     sleep_score = State()
-    sleep_details = State()
     diet_score = State()
-    diet_details = State()
     training_score = State()
-    training_details = State()
+    custom_score = State()

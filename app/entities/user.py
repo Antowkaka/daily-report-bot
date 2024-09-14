@@ -11,7 +11,7 @@ class CustomGoalDict(TypedDict):
 GoalsType = list[Dict[str, int] | Dict[str, CustomGoalDict]]
 
 
-class DbUser:
+class UserEntity:
     def __init__(self, tg_user: TgUser, goals: GoalsType = None):
         self._full_name = tg_user.full_name
         self._username = tg_user.username

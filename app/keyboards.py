@@ -11,8 +11,9 @@ first_step_keyboard = ReplyKeyboardMarkup(keyboard=[
 
 main_keyboard = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text=get_text('btn-track-your-day'))],
+    [KeyboardButton(text=get_text('btn-show-user-goals'))],
     [KeyboardButton(text=get_text('btn-statistic'))]
-], one_time_keyboard=True, resize_keyboard=True)
+], resize_keyboard=True)
 
 training_goal_types_keyboard = InlineKeyboardMarkup(inline_keyboard=[[
     InlineKeyboardButton(

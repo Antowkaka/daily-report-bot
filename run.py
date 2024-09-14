@@ -13,7 +13,7 @@ from aiogram.enums import ParseMode
 
 from app.database.db_service import DatabaseService
 from app.routers.chat_router import chat_router
-from app.routers.main_router import main_router
+from app.routers.goals_setting_router import goals_setting_router
 
 load_dotenv()
 
@@ -35,7 +35,7 @@ async def main() -> None:
 
     await bot.set_my_commands(commands, BotCommandScopeAllPrivateChats())
 
-    dp.include_routers(chat_router, main_router)
+    dp.include_routers(chat_router, goals_setting_router)
 
     # And the run events dispatching
     await dp.start_polling(bot, database=DatabaseService())

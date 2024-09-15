@@ -34,12 +34,7 @@ async def set_diet_goal_second_step_handler(message: Message, state: FSMContext)
     }).model})
 
     await state.set_state(SetGoalsState.training_goal)
-    training_goal_answer = f'''
-        {get_text('message-set-training-goal')}
-        {get_text('message-set-training-goal-option-1')}
-        {get_text('message-set-training-goal-option-2')}
-    '''
-    await message.answer(training_goal_answer, reply_markup=k_boards.training_goal_types_keyboard)
+    await message.answer(get_text('message-set-training-goal'), reply_markup=k_boards.training_goal_types_keyboard)
 
 
 # set training goal flow

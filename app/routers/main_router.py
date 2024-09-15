@@ -208,6 +208,5 @@ async def edit_goal_go_back_handler(message: Message, state: FSMContext) -> None
 
 
 @main_router.message(F.text == get_text('btn-main-keyboard-statistic'))
-async def show_goals_handler(message: Message, state: FSMContext) -> None:
-    await state.clear()
+async def show_goals_handler(message: Message) -> None:
     await message.answer('Статистика поки не доступна')

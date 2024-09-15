@@ -10,6 +10,11 @@ from app.types import TrainingGoalType
 import app.types as app_types
 import app.callback_dates as cb_dates
 
+all_training_types_btns = {
+    TrainingGoalType.trainings_per_week: get_text('btn-edit-training-type-goal-count-week'),
+    TrainingGoalType.trainings_kcal: get_text('btn-edit-training-type-goal-kcal-training')
+}
+
 first_step_keyboard = keyboard.ReplyKeyboardMarkup(keyboard=[
     [keyboard.KeyboardButton(text=get_text('btn-greeting-keyboard-set-goals'))],
 ], one_time_keyboard=True, resize_keyboard=True)
@@ -22,11 +27,11 @@ main_keyboard = keyboard.ReplyKeyboardMarkup(keyboard=[
 
 training_goal_types_keyboard = keyboard.InlineKeyboardMarkup(inline_keyboard=[[
     keyboard.InlineKeyboardButton(
-        text='1',
+        text=all_training_types_btns[TrainingGoalType.trainings_per_week],
         callback_data=cb_dates.TrainingTypeCallbackData(goal_type=app_types.TrainingGoalType.trainings_per_week).pack()
     ),
     keyboard.InlineKeyboardButton(
-        text='2',
+        text=all_training_types_btns[TrainingGoalType.trainings_kcal],
         callback_data=cb_dates.TrainingTypeCallbackData(goal_type=app_types.TrainingGoalType.trainings_kcal).pack()
     )
 ]])
@@ -94,12 +99,6 @@ def create_goal_menu_keyboard(is_deletable: bool) -> keyboard.ReplyKeyboardMarku
         ]
 
     return keyboard.ReplyKeyboardMarkup(keyboard=keyboard_buttons, one_time_keyboard=True, resize_keyboard=True)
-
-
-all_training_types_btns = {
-    TrainingGoalType.trainings_per_week: get_text('btn-edit-training-type-goal-count-week'),
-    TrainingGoalType.trainings_kcal: get_text('btn-edit-training-type-goal-kcal-training')
-}
 
 
 def create_available_training_types_keyboard(current_training_type: str) -> keyboard.InlineKeyboardMarkup:

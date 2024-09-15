@@ -1,14 +1,11 @@
-from typing import Dict, TypedDict
+from typing import Dict
 
 from aiogram.types import User as TgUser
 
-
-class CustomGoalDict(TypedDict):
-    name: str
-    goal: int
+from app.entities.goal import GoalEntity
 
 
-GoalsType = list[Dict[str, int] | Dict[str, CustomGoalDict]]
+GoalsType = Dict[str, GoalEntity.model]
 
 
 class UserEntity:
@@ -26,6 +23,3 @@ class UserEntity:
             'telegramID': self._tg_id,
             'goals': self._goals
         }
-
-    def update_goals(self, goals: GoalsType):
-        self._goals = goals

@@ -1,6 +1,6 @@
 {
-  "message-greeting": "Вітаю, першим кроком давайте встановимо цілі!",
   "message-profile-already-deleted": "Ваш профіль вже видалено",
+  "message-main-menu": "Головне меню",
   "message-profile-sucessfully-deleted": "Ваш профіль успішно видалено",
   "message-profile-already-created": "У вас вже є профіль",
   "message-profile-sucessfully-created": "Профіль успішно створено",
@@ -22,7 +22,6 @@
   "template-track-custom": "(Ваша мета) Вкажіть",
   "template-set-custom-goal": "Встановити ціль по",
   "template-greeting-user-first-part": "Вітаю,",
-  "template-greeting-user-second-part-with-goals": "бажаєш продовжити гарну звичку?",
   "template-greeting-user-second-part-without-goals": "давай спочатку встановимо цілі!",
   "message-set-next-custom-goal": "Встановити ще одну ціль (назва цілі):",
   "btn-set-goals": "Встановити цілі",

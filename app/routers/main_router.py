@@ -19,14 +19,9 @@ async def start_handler(message: Message, state: FSMContext, database: DatabaseS
     if user is not None:
         print(user)
         if user['goals'] is not None:
-            existed_user_greeting_message = (
-                f'{get_text('template-greeting-user-first-part')}'
-                f' {message.from_user.full_name}, '
-                f'{get_text('template-greeting-user-second-part-with-goals')}'
-            )
-
+            await state.clear()
             await state.update_data(user=user)
-            await message.answer(existed_user_greeting_message, reply_markup=main_keyboard)
+            await message.answer(get_text('message-main-menu'), reply_markup=main_keyboard)
         else:
             existed_user_greeting_message = (
                 f'{get_text('template-greeting-user-first-part')}'
@@ -63,7 +58,7 @@ async def create_profile_handler(message: Message, database: DatabaseService) ->
 
 @main_router.message(F.text == get_text('btn-track-your-day'))
 async def track_day_handler(message: Message, state: FSMContext) -> None:
-    await state.clear()
+    await state.set_state(TrackDayState.diet_score)
     await message.answer(get_text('message-track-diet'))
 
 

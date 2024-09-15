@@ -26,7 +26,7 @@ TOKEN = getenv("BOT_TOKEN")
 dp = Dispatcher()
 
 commands: List[BotCommand] = [
-    BotCommand(command='/start', description='Запустити бота'),
+    BotCommand(command='/start', description='Головне меню'),
     BotCommand(command='/create_profile', description='Створити профіль'),
     BotCommand(command='/delete_profile', description='Видалити профіль'),
 ]

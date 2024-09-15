@@ -9,7 +9,7 @@ class GoalChangeAccessType(enum.Enum):
 
 class GoalDict(TypedDict):
     name: str
-    value: int | None
+    value: int | str | None
     change_access: GoalChangeAccessType
 
 

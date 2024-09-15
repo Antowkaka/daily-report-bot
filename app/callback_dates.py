@@ -13,3 +13,13 @@ class SkipStepCallbackData(CallbackData, prefix='skip_step'):
 
 class CompleteCallbackData(CallbackData, prefix='complete_step'):
     step: CompleteStepType
+
+
+class EditGoalCallbackData(CallbackData, prefix='edit_goal'):
+    key: str
+    name: str | None
+    is_deletable: bool
+
+
+class EditTrainingTypeGoalCallbackData(CallbackData, prefix='edit_training_type'):
+    type: str

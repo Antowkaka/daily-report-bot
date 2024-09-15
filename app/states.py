@@ -15,3 +15,12 @@ class TrackDayState(StatesGroup):
     diet_score = State()
     training_score = State()
     custom_score = State()
+
+
+class EditGoalState(StatesGroup):
+    init = State()
+    create_new_goal_name = State()
+    set_new_goal_value = State()
+    edit_goal_value = State()
+    edit_training_goal_type = State()
+    edit_training_goal_type = State()

@@ -4,11 +4,10 @@ import re
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-from aiogram.filters import and_f
 
 from app.database.db_service import DatabaseService
 from app.states import SetGoalsState
-from app.filters import FilterGoalValue
+from app.filters import FilterGoalValue, FilterTextMessage
 from app.text_config import get_text
 from app.callback_dates import TrainingTypeCallbackData, SkipStepCallbackData, CompleteCallbackData
 from app.entities.goal import GoalEntity, GoalChangeAccessType
@@ -20,13 +19,13 @@ goals_setting_router = Router()
 
 
 # set diet goal flow
-@goals_setting_router.message(F.text == get_text('btn-set-goals'))
+@goals_setting_router.message(F.text == get_text('btn-greeting-keyboard-set-goals'))
 async def set_diet_goal_first_step_handler(message: Message, state: FSMContext) -> None:
     await state.set_state(SetGoalsState.diet_goal)
     await message.answer(get_text('message-set-diet-goal'))
 
 
-@goals_setting_router.message(SetGoalsState.diet_goal, FilterGoalValue())
+@goals_setting_router.message(SetGoalsState.diet_goal, FilterTextMessage(), FilterGoalValue())
 async def set_diet_goal_second_step_handler(message: Message, state: FSMContext) -> None:
     await state.update_data({'dietGoal': GoalEntity({
         'name': 'їжа',
@@ -51,7 +50,7 @@ async def set_training_goal_type_handler(
     state: FSMContext
 ) -> None:
     await state.update_data({'trainingGoalType': GoalEntity({
-        'name': 'ціль в тренуванні',
+        'name': get_text('goal-name-training-type'),
         'value': callback_data.goal_type.value,
         'change_access': GoalChangeAccessType.editable.value
     }).model})
@@ -66,7 +65,7 @@ async def set_training_goal_type_handler(
             await callback.message.answer(get_text('message-set-training-goal-option-2-wait-input'))
 
 
-@goals_setting_router.message(SetGoalsState.training_goal_type, FilterGoalValue())
+@goals_setting_router.message(SetGoalsState.training_goal_type, FilterTextMessage(), FilterGoalValue())
 async def set_training_goal_handler(message: Message, state: FSMContext) -> None:
     await state.update_data({'trainingGoal': GoalEntity({
         'name': 'тренування',
@@ -79,7 +78,7 @@ async def set_training_goal_handler(message: Message, state: FSMContext) -> None
 
 
 # set sleep goal flow
-@goals_setting_router.message(SetGoalsState.sleep_goal, FilterGoalValue())
+@goals_setting_router.message(SetGoalsState.sleep_goal, FilterTextMessage(), FilterGoalValue())
 async def set_sleep_goal_handler(message: Message, state: FSMContext) -> None:
     await state.update_data({'sleepGoal': GoalEntity({
         'name': 'сон',
@@ -96,7 +95,7 @@ async def set_sleep_goal_handler(message: Message, state: FSMContext) -> None:
 
 
 # set custom goal name flow
-@goals_setting_router.message(SetGoalsState.custom_goal_name)
+@goals_setting_router.message(SetGoalsState.custom_goal_name, FilterTextMessage())
 async def set_custom_goal_name_handler(message: Message, state: FSMContext) -> None:
     if message.text:
         # 1. get data for iteration custom goals
@@ -131,12 +130,17 @@ async def skip_custom_goal_settinge_handler(
 ) -> None:
     # 1. convert goals state to db goals object
     final_goals = await state.get_data()
+    del final_goals['temp_iterator']
 
     # 2. setting goals to db and clean up state
-    await database.update_user_goals(callback.from_user.id, final_goals)
+    await database.set_user_goals(callback.from_user.id, final_goals)
     await state.clear()
 
-    # 3. handle previous message and answer
+    # 3. set user for main menu interactions
+    user = await database.get_user(callback.from_user.id)
+    await state.update_data(user=user)
+
+    # 4. handle previous message and answer
     await callback.message.delete()
     await callback.answer()
     await callback.message.answer(get_text('message-setting-goals-completed'), reply_markup=k_boards.main_keyboard)
@@ -166,7 +170,7 @@ async def complete_custom_goal_settinge_handler(
 
 
 # set custom goal flow
-@goals_setting_router.message(SetGoalsState.custom_goal, FilterGoalValue())
+@goals_setting_router.message(SetGoalsState.custom_goal, FilterTextMessage(), FilterGoalValue())
 async def set_custom_goal_handler(message: Message, state: FSMContext, database: DatabaseService) -> None:
     # 1. update value
     data = await state.get_data()
@@ -185,12 +189,17 @@ async def set_custom_goal_handler(message: Message, state: FSMContext, database:
     if temp_iterator == goals_count:
         # 1. convert goals state to db goals object
         final_goals = await state.get_data()
+        del final_goals['temp_iterator']
 
         # 2. setting goals to db and clean up state
-        await database.update_user_goals(message.from_user.id, final_goals)
+        await database.set_user_goals(message.from_user.id, final_goals)
         await state.clear()
 
-        # 3. answer
+        # 3. set user for main menu interactions
+        user = await database.get_user(message.from_user.id)
+        await state.update_data(user=user)
+
+        # 4. answer
         await message.answer(get_text('message-setting-goals-completed'), reply_markup=k_boards.main_keyboard)
     else:
         # 3b. create next iterator

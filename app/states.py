@@ -13,7 +13,8 @@ class SetGoalsState(StatesGroup):
 class TrackDayState(StatesGroup):
     sleep_score = State()
     diet_score = State()
-    training_score = State()
+    training_score_kcal = State()
+    training_score_is_done = State()
     custom_score = State()
 
 
@@ -22,5 +23,4 @@ class EditGoalState(StatesGroup):
     create_new_goal_name = State()
     set_new_goal_value = State()
     edit_goal_value = State()
-    edit_training_goal_type = State()
     edit_training_goal_type = State()

@@ -51,6 +51,18 @@ set_custom_goal_complete_keyboard = keyboard.InlineKeyboardMarkup(inline_keyboar
 ]])
 
 
+training_done_answer_keyboard = keyboard.InlineKeyboardMarkup(inline_keyboard=[
+    [keyboard.InlineKeyboardButton(
+        text=get_text('btn-track-report-training-done-answer-yes'),
+        callback_data=cb_dates.AnswerTrainingDoneCallbackData(answer=True).pack()
+    )],
+    [keyboard.InlineKeyboardButton(
+        text=get_text('btn-track-report-training-done-answer-no'),
+        callback_data=cb_dates.AnswerTrainingDoneCallbackData(answer=False).pack()
+    )]
+])
+
+
 def create_goals_keyboard(goals: Dict[str, GoalEntity.model]) -> keyboard.InlineKeyboardMarkup:
     goals_keyboard = keyboard.InlineKeyboardBuilder()
     goals_items = goals.items()

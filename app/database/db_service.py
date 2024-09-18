@@ -1,13 +1,17 @@
 from os import getenv
+from datetime import datetime
+import pytz
 
 from dotenv import load_dotenv
 
+from bson.codec_options import CodecOptions
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 from pymongo.errors import ServerSelectionTimeoutError
 
 from app.loggers import db_logger
 from app.entities.user import UserEntity, GoalsType
 from app.entities.goal import GoalEntity
+from app.entities.report import ReportEntity
 
 load_dotenv()
 
@@ -22,16 +26,19 @@ class DatabaseService:
             getenv('MONGO_DB_HOST'),
             username=getenv('MONGO_DB_USERNAME'),
             password=getenv('MONGO_DB_PASSWORD'),
-            authMechanism='SCRAM-SHA-1'
+            authMechanism='SCRAM-SHA-1',
         )
 
         try:
             if client.is_primary:
                 db = client['daily-report-bot']
+                # define timezone
+                options = CodecOptions(tz_aware=True, tzinfo=pytz.timezone('Europe/Kyiv'))
+
                 # defining main fields: collections and client
                 self._client = client
                 self._users_collection = db.users_collection
-                self._reports_collection = db.reports_collection
+                self._reports_collection = db.reports_collection.with_options(codec_options=options)
                 db_logger.info('Database successfully connected')
         except ServerSelectionTimeoutError:
             db_logger.error('Connection failed')
@@ -82,3 +89,8 @@ class DatabaseService:
         user = await self._users_collection.find_one({'telegramID': tg_id})
 
         return user
+
+    async def create_report(self, report: ReportEntity):
+        report.set_created_at(datetime.now())
+
+        await self._reports_collection.insert_one(report.model)

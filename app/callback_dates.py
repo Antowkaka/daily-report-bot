@@ -23,3 +23,7 @@ class EditGoalCallbackData(CallbackData, prefix='edit_goal'):
 
 class EditTrainingTypeGoalCallbackData(CallbackData, prefix='edit_training_type'):
     type: str
+
+
+class AnswerTrainingDoneCallbackData(CallbackData, prefix='training_done_answer'):
+    answer: bool

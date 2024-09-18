@@ -62,7 +62,7 @@ async def create_profile_handler(message: Message, database: DatabaseService) ->
 @main_router.message(F.text == get_text('btn-main-keyboard-track-your-day'))
 async def track_day_handler(message: Message, state: FSMContext) -> None:
     await state.set_state(TrackDayState.diet_score)
-    await message.answer(get_text('message-track-diet'))
+    await message.answer(get_text('message-track-diet'), reply_markup=ReplyKeyboardRemove())
 
 
 @main_router.message(F.text == get_text('btn-main-keyboard-show-user-goals'))

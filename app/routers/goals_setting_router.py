@@ -126,6 +126,7 @@ async def skip_custom_goal_settinge_handler(
     # 1. convert goals state to db goals object
     final_goals = await state.get_data()
     del final_goals['temp_iterator']
+    del final_goals['user']
 
     # 2. setting goals to db and clean up state
     await database.set_user_goals(callback.from_user.id, final_goals)
@@ -185,6 +186,7 @@ async def set_custom_goal_handler(message: Message, state: FSMContext, database:
         # 1. convert goals state to db goals object
         final_goals = await state.get_data()
         del final_goals['temp_iterator']
+        del final_goals['user']
 
         # 2. setting goals to db and clean up state
         await database.set_user_goals(message.from_user.id, final_goals)

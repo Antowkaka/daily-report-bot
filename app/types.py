@@ -19,6 +19,10 @@ class CompleteStepType(enum.Enum):
     complete_custom_goal_setting = 'complete_custom_goal_setting'
 
 
+class TrackingResultVisualizationType(enum.Enum):
+    charts = 'charts'
+
+
 class ReportState(TypedDict):
     user: UserDBModel
     report: ReportEntity

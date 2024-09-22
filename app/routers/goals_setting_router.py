@@ -5,7 +5,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from app.database.db_service import DatabaseService
+from app.services.db_service import DatabaseService
 from app.states import SetGoalsState
 from app.filters import FilterGoalValue, FilterTextMessage
 from app.text_config import get_text

@@ -1,16 +1,17 @@
-from aiogram import Router
-from aiogram.types import Message, CallbackQuery
+from aiogram import Router, html
+from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
-from app.database.db_service import DatabaseService
+from app.services.db_service import DatabaseService
 from app.states import TrackDayState
 from app.filters import FilterGoalValue, FilterTextMessage
 from app.text_config import get_text
-from app.callback_dates import AnswerTrainingDoneCallbackData
-from app.entities.user import UserEntity, UserDBModel
+from app.callback_dates import AnswerTrainingDoneCallbackData, TrackingResultOptionCallbackData
+from app.entities.user import UserDBModel
 from app.entities.report import ReportEntity
 from app.types import TrainingGoalType, ReportState
-from app.utils import get_custom_goals, get_custom_goals_index_part_of_keys, process_report
+from app.charts import create_daily_report_charts
+from app.utils import get_custom_goals, get_custom_goals_index_part_of_keys, process_report, create_chart_image
 
 import app.keyboards as k_boards
 
@@ -69,7 +70,7 @@ async def track_is_training_done_report_value_handler(
 ) -> None:
     await state.update_data({'training': {
         'title': 'кількість тренувань',
-        'tracked_value': callback_data.answer if 1 else 0,
+        'tracked_value': 1 if callback_data.answer else 0,
         'color': 'green',
         'user_goal_field': 'trainingGoal',
     }})
@@ -120,9 +121,14 @@ async def track_sleep_report_value_handler(
         process_report(data, user, report)
 
         await database.create_report(report)
-        await state.clear()
-        await state.update_data(user=user)
-        await message.answer(get_text('message-track-successfully'), reply_markup=k_boards.main_keyboard)
+
+        await state.update_data(report=report)
+        await state.set_state(TrackDayState.chart_visualization)
+        text = (
+            f'{get_text('message-track-successfully')}'
+            f'\n{html.bold(get_text('message-track-choose-result-view'))}'
+        )
+        await message.answer(text, reply_markup=k_boards.tracked_result_visualization_options_keyboard)
     else:
         await state.set_state(TrackDayState.custom_score)
         await state.update_data(current_goal_index=0)
@@ -172,9 +178,14 @@ async def track_custom_report_value_handler(
         process_report(data, user, report)
 
         await database.create_report(report)
-        await state.clear()
-        await state.update_data(user=user)
-        await message.answer(get_text('message-track-successfully'), reply_markup=k_boards.main_keyboard)
+
+        await state.update_data(report=report)
+        await state.set_state(TrackDayState.chart_visualization)
+        text = (
+            f'{get_text('message-track-successfully')}'
+            f'\n{html.bold(get_text('message-track-choose-result-view'))}'
+        )
+        await message.answer(text, reply_markup=k_boards.tracked_result_visualization_options_keyboard)
     else:
         next_goal_index = current_goal_index + 1
         await state.update_data(current_goal_index=next_goal_index)
@@ -183,3 +194,35 @@ async def track_custom_report_value_handler(
         next_goal_key = f'customGoal_{next_goal_index_key_part}'
         text = f'{get_text('template-track-custom')} {data['custom_goals'][next_goal_key]['goalName']}'
         await message.answer(text)
+
+
+@daily_report_setting_router.callback_query(
+    TrackDayState.chart_visualization,
+    TrackingResultOptionCallbackData.filter()
+)
+async def chart_visualization_handler(
+    callback: CallbackQuery,
+    callback_data: TrackingResultOptionCallbackData,
+    state: FSMContext,
+) -> None:
+    # get user and report
+    data = await state.get_data()
+    user: UserDBModel = data['user']
+    report: ReportEntity = data['report']
+
+    # reset state
+    await state.clear()
+    await state.update_data(user=user)
+
+    # create chart
+    charts = create_daily_report_charts(report.chart_data)
+
+    # create png image from chart
+    image_data = create_chart_image(charts)
+
+    # create aiogram expeced InputFile
+    input_file = BufferedInputFile(image_data, 'report_bar_chart')
+
+    await callback.answer()
+    await callback.message.edit_reply_markup(reply_markup=None)
+    await callback.message.bot.send_photo(callback.message.chat.id, input_file, reply_markup=k_boards.main_keyboard)

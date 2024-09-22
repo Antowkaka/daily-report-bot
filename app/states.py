@@ -16,6 +16,7 @@ class TrackDayState(StatesGroup):
     training_score_kcal = State()
     training_score_is_done = State()
     custom_score = State()
+    chart_visualization = State()
 
 
 class EditGoalState(StatesGroup):

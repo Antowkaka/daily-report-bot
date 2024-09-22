@@ -1,6 +1,6 @@
 from aiogram.filters.callback_data import CallbackData
 
-from app.types import TrainingGoalType, SkipStepType, CompleteStepType
+from app.types import TrainingGoalType, SkipStepType, CompleteStepType, TrackingResultVisualizationType
 
 
 class TrainingTypeCallbackData(CallbackData, prefix='training_goal_type'):
@@ -27,3 +27,7 @@ class EditTrainingTypeGoalCallbackData(CallbackData, prefix='edit_training_type'
 
 class AnswerTrainingDoneCallbackData(CallbackData, prefix='training_done_answer'):
     answer: bool
+
+
+class TrackingResultOptionCallbackData(CallbackData, prefix='chart_data'):
+    option_type: TrackingResultVisualizationType

@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.filters import ChatMemberUpdatedFilter, KICKED, MEMBER
 from aiogram.types import ChatMemberUpdated
 
-from app.database.db_service import DatabaseService
+from app.services.db_service import DatabaseService
 from app.entities.user import UserEntity
 
 

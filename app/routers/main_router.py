@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from app.database.db_service import DatabaseService
+from app.services.db_service import DatabaseService
 from app.entities.user import UserEntity
 from app.entities.goal import GoalEntity, GoalChangeAccessType
 from app.text_config import get_text

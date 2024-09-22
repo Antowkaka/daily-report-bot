@@ -26,6 +26,7 @@
   "message-track-training-option-2": "кілкість спалених калорій за тренування:",
   "message-track-sleep": "Вкажіть кілкість годин сну:",
   "message-track-successfully": "Чудово, ви молодець!",
+  "message-track-choose-result-view": "В якому виді хочеш бачити результат:",
   "template-set-custom-goal": "Встановити ціль по",
   "template-track-custom": "(Ваша мета) Вкажіть",
   "template-greeting-user-first-part": "Вітаю,",
@@ -46,8 +47,13 @@
   "btn-setting-goal-complete": "Закінчити",
   "btn-track-report-training-done-answer-yes": "Так",
   "btn-track-report-training-done-answer-no": "Ні",
+  "btn-track-report-charts": "Діаграми",
   "btn-go-to-main": "Головне меню",
   "goal-name-training-type": "ціль в тренуваннях",
   "message-value-format-error": "Неправильний формат цілі, треба число, спробуйте ще раз:",
-  "message-value-not-a-text-error": "Повідомлення повинно бути текстовим, спробуйте ще раз:"
+  "message-value-not-a-text-error": "Повідомлення повинно бути текстовим, спробуйте ще раз:",
+  "charts-tracked-value": "Результат",
+  "charts-goal-value": "Ціль",
+  "charts-goal-unreached": "Залишилось",
+  "charts-goal-overdone": "Перевиконання"
 }

@@ -1,3 +1,5 @@
+import pandas as pd
+
 from datetime import datetime
 from typing import TypedDict
 
@@ -43,6 +45,25 @@ class ReportEntity:
         final_model['createdAt'] = self._created_at
 
         return final_model
+
+    @property
+    def chart_data(self) -> pd.DataFrame:
+        titles = []
+        tracked_values = []
+        goal_values = []
+
+        for field in self._report_fields:
+            report_obj: TrackedReportObject = field[1]
+
+            titles.append(report_obj['title'])
+            tracked_values.append(report_obj['tracked_value'])
+            goal_values.append(report_obj['goal_value'])
+
+        return pd.DataFrame({
+            'name': titles,
+            'tracked_value': tracked_values,
+            'goal_value': goal_values,
+        })
 
     @staticmethod
     def create_field_model(field: TrackedReportObject):

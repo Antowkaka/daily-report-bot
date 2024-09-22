@@ -1,4 +1,6 @@
 from typing import Dict
+from io import BytesIO
+import matplotlib.pyplot as plt
 import re
 
 from app.entities.user import UserDBModel
@@ -33,3 +35,12 @@ def process_report(state: ReportState, user: UserDBModel, report: ReportEntity) 
         del field_object['user_goal_field']
 
         report.append_field(field_name, field_object)
+
+
+def create_chart_image(chart: plt) -> bytes:
+    buffer = BytesIO()
+
+    chart.savefig(buffer, format='png', dpi=200, bbox_inches='tight')
+    buffer.seek(0)
+
+    return buffer.read()

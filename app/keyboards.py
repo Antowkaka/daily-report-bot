@@ -62,6 +62,15 @@ training_done_answer_keyboard = keyboard.InlineKeyboardMarkup(inline_keyboard=[
     )]
 ])
 
+tracked_result_visualization_options_keyboard = keyboard.InlineKeyboardMarkup(inline_keyboard=[
+    [keyboard.InlineKeyboardButton(
+        text=get_text('btn-track-report-charts'),
+        callback_data=cb_dates.TrackingResultOptionCallbackData(
+            option_type=app_types.TrackingResultVisualizationType.charts
+        ).pack()
+    )],
+])
+
 
 def create_goals_keyboard(goals: Dict[str, GoalEntity.model]) -> keyboard.InlineKeyboardMarkup:
     goals_keyboard = keyboard.InlineKeyboardBuilder()

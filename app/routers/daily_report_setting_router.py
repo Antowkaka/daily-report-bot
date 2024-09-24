@@ -39,7 +39,7 @@ async def track_diet_report_value_handler(message: Message, state: FSMContext) -
 
     user: UserDBModel = data['user']
 
-    await state.update_data(report=ReportEntity())
+    await state.update_data(report=ReportEntity(user['telegramID']))
     await state.update_data({'diet': {
         'title': 'їжа',
         'tracked_value': int(message.text),

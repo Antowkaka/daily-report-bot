@@ -29,3 +29,4 @@ async def user_left_bot_handler(
     database: DatabaseService
 ) -> None:
     await database.delete_user(chat_member_updated.from_user.id)
+    await database.delete_all_reports(chat_member_updated.from_user.id)

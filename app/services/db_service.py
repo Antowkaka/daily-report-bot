@@ -94,3 +94,6 @@ class DatabaseService:
         report.set_created_at(datetime.now())
 
         await self._reports_collection.insert_one(report.model)
+
+    async def delete_all_reports(self, user_tg_id: int):
+        await self._reports_collection.delete_many({'userTelegramID': user_tg_id})

@@ -21,9 +21,9 @@ async def start_handler(message: Message, state: FSMContext, database: DatabaseS
     user = await database.get_user(message.from_user.id)
 
     if user is not None:
+        await state.clear()
+        await state.update_data(user=user)
         if user['goals'] is not None:
-            await state.clear()
-            await state.update_data(user=user)
             await message.answer(get_text('message-main-menu'), reply_markup=k_boards.main_keyboard)
         else:
             existed_user_greeting_message = (
@@ -45,6 +45,7 @@ async def remove_profile_handler(message: Message, database: DatabaseService) ->
         await message.answer(get_text('message-profile-already-deleted'))
     else:
         await database.delete_user(message.from_user.id)
+        await database.delete_all_reports(message.from_user.id)
         await message.answer(get_text('message-profile-sucessfully-deleted'), reply_markup=ReplyKeyboardRemove())
 
 

@@ -22,7 +22,8 @@ class ReportEntity:
     _report_fields: list[[str, TrackedReportObject]]
     _created_at: datetime
 
-    def __init__(self):
+    def __init__(self, user_tg_id: int):
+        self._user_tg_id = user_tg_id
         self._report_fields = []
 
     def set_created_at(self, created_at: datetime):
@@ -42,6 +43,7 @@ class ReportEntity:
         for field in self._report_fields:
             final_model[field[0]] = ReportEntity.create_field_model(field[1])
 
+        final_model['userTelegramID'] = self._user_tg_id
         final_model['createdAt'] = self._created_at
 
         return final_model

@@ -1,5 +1,5 @@
 from os import getenv
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 from dotenv import load_dotenv
@@ -12,8 +12,11 @@ from app.loggers import db_logger
 from app.entities.user import UserEntity, GoalsType
 from app.entities.goal import GoalEntity
 from app.entities.report import ReportEntity
+from app.utils import validate_last_week_dates
 
 load_dotenv()
+
+kyiv_tz = pytz.timezone('Europe/Kyiv')
 
 
 class DatabaseService:
@@ -33,7 +36,7 @@ class DatabaseService:
             if client.is_primary:
                 db = client['daily-report-bot']
                 # define timezone
-                options = CodecOptions(tz_aware=True, tzinfo=pytz.timezone('Europe/Kyiv'))
+                options = CodecOptions(tz_aware=True, tzinfo=kyiv_tz)
 
                 # defining main fields: collections and client
                 self._client = client
@@ -42,6 +45,10 @@ class DatabaseService:
                 db_logger.info('Database successfully connected')
         except ServerSelectionTimeoutError:
             db_logger.error('Connection failed')
+
+    @property
+    def client(self):
+        return self._client
 
     async def create_user(self, user: UserEntity.model):
         await self._users_collection.insert_one(user)
@@ -91,9 +98,29 @@ class DatabaseService:
         return user
 
     async def create_report(self, report: ReportEntity):
-        report.set_created_at(datetime.now())
+        report.set_created_at(datetime.now(pytz.timezone('Europe/Kyiv')))
 
         await self._reports_collection.insert_one(report.model)
 
     async def delete_all_reports(self, user_tg_id: int):
         await self._reports_collection.delete_many({'userTelegramID': user_tg_id})
+
+    async def get_last_report(self):
+        return await self._reports_collection.find_one(sort=[('_id', -1)])
+
+    async def get_last_week_reports(self):
+        now = datetime.now(kyiv_tz)
+        last_week = now - timedelta(days=7)
+
+        # Query to find documents where 'createdAt' is within the last 7 days
+        reports_cursor = self._reports_collection.find({
+            'createdAt': {
+                '$gte': last_week,
+                '$lt': now
+            }
+        })
+
+        last_week_reports = await reports_cursor.to_list(7)
+        remaining_days = validate_last_week_dates(last_week_reports)
+
+        return last_week_reports, remaining_days

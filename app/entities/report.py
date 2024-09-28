@@ -1,7 +1,5 @@
-import pandas as pd
-
 from datetime import datetime
-from typing import TypedDict
+from typing import TypedDict, Dict
 
 
 class BaseTrackedReportObject(TypedDict):
@@ -49,7 +47,7 @@ class ReportEntity:
         return final_model
 
     @property
-    def chart_data(self) -> pd.DataFrame:
+    def charts_data(self) -> Dict[str, list[int]]:
         titles = []
         tracked_values = []
         goal_values = []
@@ -61,11 +59,11 @@ class ReportEntity:
             tracked_values.append(report_obj['tracked_value'])
             goal_values.append(report_obj['goal_value'])
 
-        return pd.DataFrame({
+        return {
             'name': titles,
             'tracked_value': tracked_values,
             'goal_value': goal_values,
-        })
+        }
 
     @staticmethod
     def create_field_model(field: TrackedReportObject):

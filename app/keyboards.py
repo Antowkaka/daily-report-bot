@@ -25,6 +25,11 @@ main_keyboard = keyboard.ReplyKeyboardMarkup(keyboard=[
     [keyboard.KeyboardButton(text=get_text('btn-main-keyboard-statistic'))]
 ], one_time_keyboard=True, resize_keyboard=True)
 
+statistic_keyboard = keyboard.ReplyKeyboardMarkup(keyboard=[
+    [keyboard.KeyboardButton(text=get_text('btn-statistic-keyboard-text'))],
+    [keyboard.KeyboardButton(text=get_text('btn-statistic-keyboard-charts'))],
+], one_time_keyboard=True, resize_keyboard=True)
+
 training_goal_types_keyboard = keyboard.InlineKeyboardMarkup(inline_keyboard=[[
     keyboard.InlineKeyboardButton(
         text=all_training_types_btns[TrainingGoalType.trainings_per_week],

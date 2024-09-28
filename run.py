@@ -10,6 +10,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.fsm.storage.mongo import MongoStorage
 
 from app.services.db_service import DatabaseService
 from app.routers.chat_router import chat_router
@@ -24,8 +25,6 @@ TOKEN = getenv("BOT_TOKEN")
 
 # All handlers should be attached to the Router (or Dispatcher)
 
-dp = Dispatcher()
-
 commands: List[BotCommand] = [
     BotCommand(command='/start', description='Головне меню'),
     BotCommand(command='/create_profile', description='Створити профіль'),
@@ -39,10 +38,14 @@ async def main() -> None:
 
     await bot.set_my_commands(commands, BotCommandScopeAllPrivateChats())
 
+    database = DatabaseService()
+
+    dp = Dispatcher(storage=MongoStorage(database.client, db_name='daily-report-bot-fsm'))
+
     dp.include_routers(chat_router, main_router, goals_setting_router, daily_report_setting_router)
 
     # And the run events dispatching
-    await dp.start_polling(bot, database=DatabaseService())
+    await dp.start_polling(bot, database=database)
 
 
 if __name__ == "__main__":

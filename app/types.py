@@ -2,7 +2,7 @@ import enum
 from typing import TypedDict, Dict, NotRequired
 
 from app.entities.goal import GoalEntity
-from app.entities.report import ReportEntity, TempReportObject
+from app.entities.report import TempReportObject
 from app.entities.user import UserDBModel
 
 
@@ -25,10 +25,10 @@ class TrackingResultVisualizationType(enum.Enum):
 
 class ReportState(TypedDict):
     user: UserDBModel
-    report: ReportEntity
     diet: TempReportObject
     training: TempReportObject
     sleep: TempReportObject
+    charts_data: Dict[str, list[int]]
     custom_goals: NotRequired[Dict[str, GoalEntity.model]]
     custom_goals_indexes: NotRequired[list[int]]
     current_goal_index: NotRequired[int]

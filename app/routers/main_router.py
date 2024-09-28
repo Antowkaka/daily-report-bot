@@ -1,3 +1,5 @@
+import pprint
+
 from aiogram import Router, F, html
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
@@ -10,6 +12,7 @@ from app.text_config import get_text
 from app.states import TrackDayState, EditGoalState
 from app.callback_dates import EditGoalCallbackData, EditTrainingTypeGoalCallbackData
 from app.filters import FilterTextMessage, FilterGoalValue
+from app.utils import out_time_tracking, prepare_statistic_data
 
 import app.keyboards as k_boards
 
@@ -61,9 +64,17 @@ async def create_profile_handler(message: Message, database: DatabaseService) ->
 
 
 @main_router.message(F.text == get_text('btn-main-keyboard-track-your-day'))
-async def track_day_handler(message: Message, state: FSMContext) -> None:
-    await state.set_state(TrackDayState.diet_score)
-    await message.answer(get_text('message-track-diet'), reply_markup=ReplyKeyboardRemove())
+async def track_day_handler(message: Message, state: FSMContext, database: DatabaseService) -> None:
+    # get last report and check date
+    last_report = await database.get_last_report()
+    out_of_tracking_message = out_time_tracking(last_report)
+
+    # check is available to track
+    if out_of_tracking_message is None:
+        await state.set_state(TrackDayState.diet_score)
+        await message.answer(get_text('message-track-diet'), reply_markup=ReplyKeyboardRemove())
+    else:
+        await message.answer(out_of_tracking_message, reply_markup=k_boards.main_keyboard)
 
 
 @main_router.message(F.text == get_text('btn-main-keyboard-show-user-goals'))
@@ -78,9 +89,9 @@ async def show_goals_handler(message: Message, state: FSMContext) -> None:
 
 @main_router.callback_query(EditGoalState.init, EditGoalCallbackData.filter())
 async def edit_goal_main_handler(
-    callback: CallbackQuery,
-    callback_data: EditGoalCallbackData,
-    state: FSMContext
+        callback: CallbackQuery,
+        callback_data: EditGoalCallbackData,
+        state: FSMContext
 ) -> None:
     if callback_data.name:
         await state.update_data({
@@ -158,10 +169,10 @@ async def edit_goal_value_handler(message: Message, state: FSMContext) -> None:
 
 @main_router.callback_query(EditGoalState.edit_training_goal_type, EditTrainingTypeGoalCallbackData.filter())
 async def edit_training_type_goal_handler(
-    callback: CallbackQuery,
-    callback_data: EditTrainingTypeGoalCallbackData,
-    state: FSMContext,
-    database: DatabaseService
+        callback: CallbackQuery,
+        callback_data: EditTrainingTypeGoalCallbackData,
+        state: FSMContext,
+        database: DatabaseService
 ) -> None:
     await database.update_user_training_type_goal(callback.from_user.id, callback_data.type)
 
@@ -191,6 +202,8 @@ async def delete_goal_handler(message: Message, state: FSMContext, database: Dat
 
     await state.update_data(user=updated_user)
     await message.answer(get_text('message-goal-deleted'), reply_markup=k_boards.main_keyboard)
+
+
 # end CRUD methods
 
 
@@ -209,5 +222,26 @@ async def edit_goal_go_back_handler(message: Message, state: FSMContext) -> None
 
 
 @main_router.message(F.text == get_text('btn-main-keyboard-statistic'))
-async def show_goals_handler(message: Message) -> None:
-    await message.answer('Статистика поки не доступна')
+async def statistic_handler(message: Message, state: FSMContext, database: DatabaseService) -> None:
+    reports, remaining_days = await database.get_last_week_reports()
+
+    if remaining_days:
+        await message.answer(
+            f'{get_text('message-db-week-not-full')} {remaining_days}',
+            reply_markup=k_boards.main_keyboard
+        )
+    else:
+        await message.answer(
+            get_text('message-statistic-type'),
+            reply_markup=k_boards.statistic_keyboard
+        )
+
+
+@main_router.message(F.text == get_text('btn-statistic-keyboard-text'))
+async def statistic_text_handler(message: Message, state: FSMContext, database: DatabaseService) -> None:
+    await message.answer('Text statistic')
+
+
+@main_router.message(F.text == get_text('btn-statistic-keyboard-charts'))
+async def statistic_charts_handler(message: Message, state: FSMContext, database: DatabaseService) -> None:
+    await message.answer('Charts statistic')

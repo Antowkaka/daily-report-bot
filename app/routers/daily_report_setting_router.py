@@ -1,3 +1,5 @@
+import pandas as pd
+
 from aiogram import Router, html
 from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from aiogram.fsm.context import FSMContext
@@ -39,7 +41,6 @@ async def track_diet_report_value_handler(message: Message, state: FSMContext) -
 
     user: UserDBModel = data['user']
 
-    await state.update_data(report=ReportEntity(user['telegramID']))
     await state.update_data({'diet': {
         'title': 'їжа',
         'tracked_value': int(message.text),
@@ -69,7 +70,7 @@ async def track_is_training_done_report_value_handler(
     state: FSMContext
 ) -> None:
     await state.update_data({'training': {
-        'title': 'кількість тренувань',
+        'title': get_text('data-title-trainings-count'),
         'tracked_value': 1 if callback_data.answer else 0,
         'color': 'green',
         'user_goal_field': 'trainingGoal',
@@ -84,7 +85,7 @@ async def track_is_training_done_report_value_handler(
 @daily_report_setting_router.message(TrackDayState.training_score_kcal, FilterTextMessage(), FilterGoalValue())
 async def track_training_kcal_report_value_handler(message: Message, state: FSMContext) -> None:
     await state.update_data({'training': {
-        'title': 'тренування',
+        'title': get_text('data-title-training-kcals'),
         'tracked_value': int(message.text),
         'color': 'green',
         'user_goal_field': 'trainingGoal',
@@ -115,14 +116,14 @@ async def track_sleep_report_value_handler(
     custom_goals_indexes = get_custom_goals_index_part_of_keys(custom_goals)
 
     if len(custom_goals) == 0:
-        report: ReportEntity = data['report']
+        report: ReportEntity = ReportEntity(user['telegramID'])
 
         # process result data
         process_report(data, user, report)
 
         await database.create_report(report)
 
-        await state.update_data(report=report)
+        await state.update_data(charts_data=report.charts_data)
         await state.set_state(TrackDayState.chart_visualization)
         text = (
             f'{get_text('message-track-successfully')}'
@@ -172,14 +173,14 @@ async def track_custom_report_value_handler(
 
         # get user for future using
         user: UserDBModel = data['user']
-        report: ReportEntity = data['report']
+        report = ReportEntity(user['telegramID'])
 
         # process result data
         process_report(data, user, report)
 
         await database.create_report(report)
 
-        await state.update_data(report=report)
+        await state.update_data(charts_data=report.charts_data)
         await state.set_state(TrackDayState.chart_visualization)
         text = (
             f'{get_text('message-track-successfully')}'
@@ -206,16 +207,15 @@ async def chart_visualization_handler(
     state: FSMContext,
 ) -> None:
     # get user and report
-    data = await state.get_data()
+    data: ReportState = await state.get_data()
     user: UserDBModel = data['user']
-    report: ReportEntity = data['report']
 
     # reset state
     await state.clear()
     await state.update_data(user=user)
 
     # create chart
-    charts = create_daily_report_charts(report.chart_data)
+    charts = create_daily_report_charts(pd.DataFrame(data['charts_data']))
 
     # create png image from chart
     image_data = create_chart_image(charts)
